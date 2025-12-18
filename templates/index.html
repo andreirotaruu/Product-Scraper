@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scraper</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌐 Web Scraper</h1>
+        <p>Extract content from any website</p>
+    </div>
+
+    <div class="content">
+        <div class="input-group">
+            <label for="urlInput">Enter Website URL:</label>
+            <input type="url" id="urlInput" placeholder="https://example.com" />
+        </div>
+
+        <button class="button" onclick="scrapeWebsite()">Scrape Website</button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px;">Scraping website...</p>
+        </div>
+
+        <div class="results" id="results">
+            <h3>Scraped Content:</h3>
+            <pre id="output"></pre>
+        </div>
+    </div>
+
+    <script>
+        async function scrapeWebsite() {
+            const url = document.getElementById('urlInput').value;
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const output = document.getElementById('output');
+            
+            if (!url) {
+                alert('Please enter a valid URL');
+                return;
+            }
+
+            loading.style.display = 'block';
+            results.style.display = 'none';
+
+            try {
+                //request to flask to scrape the website
+                const response = await fetch(`/scrape?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+
+                // server error 
+                if (data.error) {
+                    output.textContent = `Error: ${data.error}`;
+                } else {
+                    // displayed data 
+                    output.textContent = JSON.stringify(data, null, 2);
+                }
+
+                results.style.display = 'block';
+            } catch (error) {
+                output.textContent = `Error: ${error.message}`;
+                results.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // enter to submit 
+        document.getElementById('urlInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                scrapeWebsite();
+            }
+        });
+    </script>
+</body>
+</html>
